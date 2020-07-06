@@ -1,59 +1,28 @@
 import numpy as np
 from scipy.special import jv
  
-def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):       
+def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):
     '''
-        # fieldmod  field modulation
+    fieldmod  field modulation
     
-    #   yMod = fieldmod(x,y,ModAmpl);
-    #   yMod = fieldmod(x,y,ModAmpl,Harmonic);
-    #   fieldmod(...)
-    
-    #   Computes the effect of field modulation
-    #   on an EPR absorption spectrum.
-    
-    #   Input:
-        #   - x: magnetic field axis vector [mT]
-        #   - y: absorption spectrum
-        #   - ModAmpl: peak-to-peak modulation amplitude [mT]
-        #   - Harmonic: harmonic (0, 1, 2, ...); default is 1
-    
-    #   Output:
-        #   - yMod: pseudo-modulated spectrum
-    
-    #   If no output variable is given, fieldmod plots the
-    #   original and the modulated spectrum.
-
-    #   Example:
-    
-    #     x = linspace(300,400,1001);
-    #     y = lorentzian(x,342,4);
-    #     fieldmod(x,y,20);
-    
-    # References
-    # --------------------------------------------------
-    # Berger, Günthart, Z.Angew.Math.Phys. 13, 310 (1962)
-    # Wilson, J.Appl.Phys. 34, 3276 (1963)
-    # Haworth, Richards, Prog.Nmr.Spectrosc. 1, 1 (1966)
-    # Hyde et al., Appl.Magn.Reson. 1, 483-496 (1990)
-    # Hyde et al., J.Magn.Reson. 96, 1-13 (1992)
-    # Kaelin, Schweiger, J.Magn.Reson. 160, 166-180 (2003)
-    # Nielsen, Robinson, Conc. Magn. Reson. A 23, 38-48 (2004)
-
+    yMod = fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1)
+        
+    Computes the effect of field modulation on an EPR absorption spectrum.
+     
     Parameters
     ----------
-    x : TYPE, optional
-        DESCRIPTION. The default is None.
-    y : TYPE, optional
-        DESCRIPTION. The default is None.
-    ModAmpl : TYPE, optional
-        DESCRIPTION. The default is None.
-    Harmonic : TYPE, optional
-        DESCRIPTION. The default is 1.
-    *args : TYPE
-        DESCRIPTION.
-    **kwargs : TYPE
-        DESCRIPTION.
+    x : TYPE numpy array column vector
+        DESCRIPTION : - magnetic field axis vector [mT]. 
+        The default is None.
+    y : TYPE numpy array column vector, x and y needs to have the same length
+        DESCRIPTION : EPR absorption spectrum 
+        The default is None.
+    ModAmpl : TYPE = positive float
+        DESCRIPTION : peak-to-peak modulation amplitude [mT]
+        The default is None.
+    Harmonic : postive integer, optional
+        DESCRIPTION : Harmonic of the EPR spectrum (0, 1, 2, ...)
+        The default is 1 (so first derivative).
 
     Raises
     ------
@@ -62,13 +31,24 @@ def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):
 
     Returns
     -------
-    yModInPhase : TYPE
-        DESCRIPTION.
-    yModOutOfPhase : TYPE
-        DESCRIPTION.
+    yModInPhase : TYPE = numpy array column vector
+        DESCRIPTION : pseudo-modulated EPR spectrum.
+    
+    References
+    -------
+    Berger, Gunthart, Z.Angew.Math.Phys. 13, 310 (1962)
+    Wilson, J.Appl.Phys. 34, 3276 (1963)
+    Haworth, Richards, Prog.Nmr.Spectrosc. 1, 1 (1966)
+    Hyde et al., Appl.Magn.Reson. 1, 483-496 (1990)
+    Hyde et al., J.Magn.Reson. 96, 1-13 (1992)
+    Kaelin, Schweiger, J.Magn.Reson. 160, 166-180 (2003)
+    Nielsen, Robinson, Conc. Magn. Reson. A 23, 38-48 (2004)
 
+    TO DO 
+    -------
+    Try to adjust the phase of the complex output vector to have a better signal???
     '''
-    if Harmonic < 0 or type(Harmonic) == int:
+    if Harmonic < 0 or type(Harmonic) != int:
          raise ValueError('Harmonic must be a positive integer (1, 2, 3, etc)!')
     
     # Check ModAmpl
@@ -104,5 +84,5 @@ def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):
     
     yModInPhase=np.real(yMod3)
     #yModOutOfPhase = np.imag(yMod)
-    
+    # ToDo Try to adjust the phase to have a better signal???
     return yModInPhase#,yModOutOfPhase

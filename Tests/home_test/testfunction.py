@@ -37,4 +37,8 @@ y3mod,x3mod,par3mod = eprload_BrukerBES3T(folder+filename3b)
 # from windowing import *
 #______________________________________________________________________________
 # from fieldmodulation import *
-# ymodreal,ymodimag = fieldmodulation(x3,y3,3.5,1)
+# ymodreal = fieldmodulation(x3,y3,3.5,2)
+from rescale import *
+ynew,scalefactor = rescale(np.real(y3),Mode='None')
+from basecorr import *
+ynew,scalefactor = basecorr2D(np.real(y3),Dimension = [1,1], Order = [1,3])

@@ -8,7 +8,6 @@ Created on Thu Jun  4 12:04:37 2020
 import numpy as np
 import scipy.optimize
 
-
 def automatic_phase(vector=None,pivot1=1,*args,**kwargs):
     '''
     Function that adjustautomatically the phase of a complex vector by minimizing the 
@@ -41,8 +40,8 @@ def automatic_phase(vector=None,pivot1=1,*args,**kwargs):
     '''
     dtype = vector.dtype.char
     
-    if (dtype not in 'GFD' and len(vector.shape) == 1):
-         raise ValueError ("The input vector doesn't have the right datatype: "
+    if (dtype not in 'GFD' and (vector.shape[0] != np.ravel(vector).shape[0])):
+         raise ValueError("The input vector doesn't have the right datatype: "
                            "Complex single column array")
     
     # PreAllocation of the output variables
