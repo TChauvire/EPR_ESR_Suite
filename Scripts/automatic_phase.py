@@ -7,9 +7,9 @@ Created on Thu Jun  4 12:04:37 2020
 
 import numpy as np
 import scipy.optimize
+from warnings import warn
 
-
-def automatic_phase(vector=None,pivot1=1,*args,**kwargs):
+def automatic_phase(vector=None,pivot1=1,funcmodel='minfunc', *args,**kwargs):
     '''
     Function that adjustautomatically the phase of a complex vector by minimizing the 
     imaginary part.
@@ -36,15 +36,16 @@ def automatic_phase(vector=None,pivot1=1,*args,**kwargs):
         doi: 10.1016/j.chemolab.2013.11.005
         
     TO DO:
-        1) Test different algorithm for the phase optimization
+        1) Test other algorithms for the phase optimization (ACME and min implemented for the moment)
         2) Adjust other order >1 for phase correction
     '''
     dtype = vector.dtype.char
-    
-    if (dtype not in 'GFD' and len(vector.shape) == 1):
-         raise ValueError ("The input vector doesn't have the right datatype: "
+    shape = vector.shape
+    if (dtype not in 'GFD' and (vector.shape[0] != np.ravel(vector).shape[0])):
+         raise ValueError("The input vector doesn't have the right datatype: "
                            "Complex single column array")
-    
+    else:
+        vector = np.ravel(vector)
     # PreAllocation of the output variables
     npts = int(vector.shape[0])
     zero_phase = 0
@@ -60,13 +61,20 @@ def automatic_phase(vector=None,pivot1=1,*args,**kwargs):
     phase_corrected_vector = vector*np.exp(1j*zero_phase)
     vector_imag = np.imag(vector)
     # Calculate zero and first order phase correction
-    minimum = scipy.optimize.fmin(minfunc, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
+    if funcmodel == 'minfunc':
+        minimum = scipy.optimize.fmin(minfunc, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
+    elif funcmodel == 'acme':
+        minimum = scipy.optimize.fmin(acme, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
+    else:
+        warn("There is only two options possible with the funcmodel argument: 'minfunc' and 'acme'." 
+             "By default, 'minfunc' was used.")
+        minimum = scipy.optimize.fmin(minfunc, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
     phi0, phi1 = minimum
     q =1j*np.pi/180
     First = -1*(np.arange(0,npts)-pivot1)/(npts)
     phase_parameters = {'zero_phase':zero_phase*180/np.pi,'first_phase':(phi0*180/np.pi, phi1*180/np.pi)}
     phase_corrected_vector = np.multiply(phase_corrected_vector,np.exp(q*(phi0+First*phi1)))
-    
+    phase_corrected_vector = phase_corrected_vector.reshape(shape)
     return phase_corrected_vector, phase_parameters
 
 def minfunc(phase,complex_vector,pivot1):
@@ -75,17 +83,18 @@ def minfunc(phase,complex_vector,pivot1):
 
     Parameters
     ----------
+    phase : tuple, phi0=phase[0] : zero order phase in degrees
+                   phi1=phase[1] : first phase in degrees
     complex_vector : numpy complex array
-    phi0=phase[0] : zero order phase in degrees
-    phi1=phase[1] : first phase in degrees
     pivot1 : pivot point around which you adjust the phase of the complex vector
     at the first-order 
     Returns zero order phase in degrees phi0 and first order phase in degrees phi1
+    
+    Output
     -------
     x : float value to minimize
     '''
-    phi0 = phase[0]
-    phi1 = phase[1]
+    phi0, phi1 = phase
     npts = int(len(complex_vector))
     q = 1j*np.pi/180
     First = -1*(np.arange(0,npts)-pivot1)/(npts)
@@ -93,4 +102,51 @@ def minfunc(phase,complex_vector,pivot1):
     complex_vector_corr = np.multiply(complex_vector,np.exp(q*(phi0+First*phi1)))
     # calculation of the integral of the imaginary part of the phase corrected signal:
     x = (np.imag(complex_vector_corr)**2).sum(axis=0)
+    return x
+
+def acme(phase, complex_vector, pivot1):
+    """
+    Phase correction using ACME algorithm by Chen Li et al.
+    Journal of Magnetic Resonance 158 (2002) 164-168
+    
+    Parameters
+    -------
+    phase : tuple, phi0=phase[0] : zero order phase in degrees
+                   phi1=phase[1] : first phase in degrees
+    complex_vector : numpy complex array
+    pivot1 : pivot point around which you adjust the phase of the complex vector
+    at the first-order 
+    Returns zero order phase in degrees phi0 and first order phase in degrees phi1
+    
+    Output
+    -------
+    x : float value to minimize
+        Value of the objective function (phase score)
+    """
+    stepsize = 1
+    npts = int(len(complex_vector))
+    phi0, phi1 = phase
+    q = 1j*np.pi/180
+    First = -1*(np.arange(0,npts)-pivot1)/(npts)
+    s0 = np.multiply(complex_vector, np.exp(q*(phi0+First*phi1)))
+    data = np.real(s0)
+
+    # Calculation of first derivatives
+    ds1 = np.abs((data[1:]-data[:-1]) / (stepsize*2))
+    p1 = ds1 / np.sum(ds1)
+
+    # Calculation of entropy
+    p1[p1 == 0] = 1
+    h1 = -p1 * np.log(p1)
+    h1s = np.sum(h1)
+
+    # Calculation of penalty
+    pfun = 0.0
+    as_ = data - np.abs(data)
+    sumas = np.sum(as_)
+    if sumas < 0:
+        pfun = pfun + np.sum((as_/2) ** 2)
+    p = 1000 * pfun
+
+    x = (h1s + p) / data.shape[-1] / np.max(data)
     return x

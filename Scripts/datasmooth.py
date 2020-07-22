@@ -32,7 +32,10 @@ def datasmooth(y=None,window_length=1,method='binom',polyorder=2,deriv=0,*args,*
         DESCRIPTION.
 
     '''
-    
+    if (y.shape[0] != np.ravel(y).shape[0]):
+        raise ValueError('The file data must be a column vector')
+    else:
+        y = np.ravel(y)
     if window_length == 0:
         return y
 
@@ -49,9 +52,9 @@ def datasmooth(y=None,window_length=1,method='binom',polyorder=2,deriv=0,*args,*
     n=2*int(window_length) + 1
     npts = y.shape[0]
     y_expanded = np.full((npts+n,),np.nan) # extension of the data input to compensate the phase delay of the filter
-    y_expanded[window_length+1:-window_length] = y[:,0]
-    y_expanded[:window_length+1] = y[0,0] # edge extension as 'nearest' option
-    y_expanded[-window_length:] = y[-1:,0] # edge extension as 'nearest' option
+    y_expanded[window_length+1:-window_length] = y[0:npts]
+    y_expanded[:window_length+1] = y[0] # edge extension as 'nearest' option
+    y_expanded[-window_length:] = y[-1:] # edge extension as 'nearest' option
     if 'flat' == method:
         weights = np.divide(np.ones(n),n)
         a = lfilter(weights, 1, y_expanded,axis=0)

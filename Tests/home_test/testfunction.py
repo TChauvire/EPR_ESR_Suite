@@ -15,14 +15,14 @@ import numpy as np
 #############################################################################
 folder = 'C:\\Users\\TC229401\\Documents\\CoreEPRProjectSuite\\Tests\\home_test\\'
 #filename1 = '20190930_TC_20190826_NOSLY173F_1e_t=0s_T60K.par'
-#filename2 = '20200305_NOSLwT_EDNMR_1.DSC'
-filename3 = '20200311_NOSLwt_FSE_SRT_200us_100Shot_2.DSC'
-filename3b = '20200311_NOSLwt_FSE_SRT_200us_100Shot_2.DSC'
+filename2 = '20200305_NOSLwT_EDNMR_1.DSC'
+#filename3 = '20200311_NOSLwt_FSE_SRT_200us_100Shot_2.DSC'
+#filename3b = '20200311_NOSLwt_FSE_SRT_200us_100Shot_2.DSC'
 
 #y1,x1,par1 = eprload_BrukerESP(folder+filename1)
-#y2,x2,par2 = eprload_BrukerBES3T(folder+filename2)
-y3,x3,par3 = eprload_BrukerBES3T(folder+filename3)
-y3mod,x3mod,par3mod = eprload_BrukerBES3T(folder+filename3b)
+y2,x2,par2 = eprload_BrukerBES3T(folder+filename2)
+#y3,x3,par3 = eprload_BrukerBES3T(folder+filename3)
+#y3mod,x3mod,par3mod = eprload_BrukerBES3T(folder+filename3b)
 #______________________________________________________________________________
 # from datasmooth import *
 
@@ -38,7 +38,11 @@ y3mod,x3mod,par3mod = eprload_BrukerBES3T(folder+filename3b)
 #______________________________________________________________________________
 # from fieldmodulation import *
 # ymodreal = fieldmodulation(x3,y3,3.5,2)
-from rescale import *
-ynew,scalefactor = rescale(np.real(y3),Mode='None')
-from basecorr import *
-ynew,scalefactor = basecorr2D(np.real(y3),Dimension = [1,1], Order = [1,3])
+# from rescale import *
+# ynew,scalefactor = rescale(np.real(y3),Mode='None')
+# from basecorr import *
+# ynew,scalefactor = basecorr2D(np.real(y3),Dimension = [1,1], Order = [1,3])
+from ImportMultipleFiles import *
+ListOfFiles = ImportMultipleNameFiles(folder, Extension='.DSC')
+maxlen = MaxLengthOfFiles(ListOfFiles)
+fulldata = OpenMultipleFiles(ListOfFiles,Scaling=None)
