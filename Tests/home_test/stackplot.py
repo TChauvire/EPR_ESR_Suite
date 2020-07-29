@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def stackplot(x=None,y=None,scale=1,step=1,sliceLabels=None,*args,**kwargs):
+def stackeddata(x=None,y=None,scale=1,step=1,sliceLabels=None,*args,**kwargs):
     if np.array(scale).dtype.char not in 'bBhHiIlLqQpPdefg' or np.array(scale).size != 1:
         raise ValueError('Third argument (scale) must be a scalar number.')
     
@@ -31,14 +31,14 @@ def stackplot(x=None,y=None,scale=1,step=1,sliceLabels=None,*args,**kwargs):
     
     if x.shape[0] == np.ravel(x).shape[0]:
         x=np.ravel(x)
-        x=np.tile(x,nSlices)
+        x_stacked=np.tile(x,nSlices)
     
     if shift[nSlices] < shift[0]:
         shift=shift[::-1]
     
-    h=plt.plot(x,y)
-    set(gca,'YTick',shift)
-    set(gca,'YTickLabel',sliceLabels)
-    axis('tight')
+    return x_stacked, y_stacked, shift, sliceLabels   
+
+def stackedplot(x_stacked=None, y_stacked=None, shift=None, sliceLabels=None, *args,**kwargs):  
+    if x_stacked==None or y_stacked==None or shift==None or sliceLabels==None:
+        raise ValueError('There is some missing input parameters to generate the stacked plot')
     
-    return y_stacked  

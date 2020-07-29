@@ -11,6 +11,7 @@ from os import walk
 from datasmooth import *
 from eprload_BrukerBES3T import *
 from eprload_BrukerESP import *
+from basecorr1D import *
 
 def ImportMultipleNameFiles(FolderPath = os.getcwd(), Extension = None,*args,**kwargs):
     ListOfFiles = []
@@ -28,7 +29,7 @@ def MaxLengthOfFiles(ListOfFiles,*args,**kwargs):
             maxlen = data.shape[0]
     return maxlen
 
-def OpenMultipleFiles(ListOfFiles,Scaling=None,*args,**kwargs):
+def OpenMultipleFiles(ListOfFiles,Scaling=None,polyorder=0, window=20,*args,**kwargs):
     for file in ListOfFiles:
         data, abscissa, par = eprload(file,Scaling)
         maxlen = MaxLengthOfFiles(ListOfFiles,*args,**kwargs)
@@ -36,6 +37,7 @@ def OpenMultipleFiles(ListOfFiles,Scaling=None,*args,**kwargs):
             raise ValueError('The file {0} is\'t a column vector'.format(par['TITL']))
         else: 
             data = np.ravel(data)
+            data,_,_,_ = basecorr1D(x=abscissa,y=data, polyorder=polyorder,window=window)
             fulldata = np.full((maxlen,4*len(ListOfFiles)),np.nan)
             for i in range(len(ListOfFiles)):
                 npts = abscissa.shape[0]

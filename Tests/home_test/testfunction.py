@@ -9,7 +9,7 @@ are well working.
 """
 from eprload_BrukerBES3T import *
 from eprload_BrukerESP import * 
-
+from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 import numpy as np
 #############################################################################
