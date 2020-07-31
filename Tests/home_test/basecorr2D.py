@@ -4,15 +4,18 @@ def basecorr2D(Spectrum=None,Dimension=None,Order=None,*args,**kwargs):
         raise ValueError('basecorr() needs 3 inputs: basecorr(Spectrum,Dimension,Order)')
     
     if np.array(Order).any() < 0 or np.array(Order).dtype.char not in 'bBhHiIlLqQpP':
-        raise ValueError('Order must contain integers between 0 and 4!')
-    ndims = len(Spectrum.shape)
+        raise ValueError('Order must contain positive integers!')
+    
+    ndims = Spectrum.ndim
+    
+    
     if Dimension == None:
-        if Spectrum.size == len(Spectrum):
+        if Spectrum.shape[0] == np.ravel(Spectrum).shape[0]:
             raise ValueError('Multidimensional fitting not possible for 1D data!')
         if ndims > 2:
-            raise ValueError('Multidimensional fitting for {0}D arrays not implemented!'.format(str(ndims)))
+            raise ValueError('Multidimensional fitting for {0}-D arrays not implemented!'.format(str(ndims)))
         if Order.size != ndims:
-            raise ValueError('Order must have %d elements!',str(ndims))
+            raise ValueError('Order must have {0} elements!',str(ndims))
         if max(Order) >= max(Spectrum.shape):
             raise ValueError('The Order value is too large for the given Spectrum!')
         m,n=Spectrum.shape
