@@ -13,7 +13,7 @@ from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 import numpy as np
 #############################################################################
-folder = 'C:\\Users\\TC229401\\Documents\\CoreEPRProjectSuite\\Tests\\home_test\\'
+folder = 'C:\\Users\\Tim\\Jupyter\\CoreProject_EPRSuite\\Tests\\home_test\\'
 #filename1 = '20190930_TC_20190826_NOSLY173F_1e_t=0s_T60K.par'
 filename2 = '20200305_NOSLwT_EDNMR_1.DSC'
 #filename3 = '20200311_NOSLwt_FSE_SRT_200us_100Shot_2.DSC'
