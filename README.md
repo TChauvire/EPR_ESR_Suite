@@ -7,4 +7,4 @@ and from pyspecdata module from [the John M. Franck lab](https://github.com/jmfr
 ### Documentation will come soon. 
 
 Main author : Timothée Chauviré
-Last commit : August 17th 2020
+Last commit : August 28th 2020
