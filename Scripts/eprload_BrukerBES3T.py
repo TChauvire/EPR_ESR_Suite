@@ -5,11 +5,50 @@ import os
 from io import StringIO
 #-------------------------------------------------------------------------------
 def eprload_BrukerBES3T(fullbasename=None,Scaling=None,*args,**kwargs):
-    '''BES3T file processing
+    '''
+    BES3T file processing
     (Bruker EPR Standard for Spectrum Storage and Transfer)
     .DSC: descriptor file
     .DTA: data file
-    used on Bruker ELEXSYS and EMX machines Code based on BES3T version 1.2 (Xepr 2.1)'''
+    used on Bruker ELEXSYS and EMX machines Code based on BES3T version 1.2 (Xepr 2.1)
+    
+    This script is freely inspired by the easyspin suite from the Stefan Stoll lab
+    (https://github.com/StollLab/EasySpin/)
+    (https://easyspin.org/easyspin/)
+    and from the pyspecdata python module from the John M. Franck lab (especially for the xepr_load_acqu function below)
+    (https://github.com/jmfrancklab/pyspecdata)
+    (https://pypi.org/project/pySpecData/)
+    (http://jmfrancklab.github.io/pyspecdata/)
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+    
+    Parameters
+    ----------
+    fullbasename : complete path to import the file, type is string
+        DESCRIPTION. The default is None.
+    Scaling : Scaling to achieve on the datafiles.
+        DESCRIPTION:
+        Different options are available: 'n', intensity is divided by the number of scans done
+        'G', intensity is divided by the receiver gain                               
+        'c', intensity is divided by the sampling time in second
+        'P', intensity is divided by the microwave power in Watt
+        'T', intensity is divided by the Temperature in Kelvin
+        The default is None.
+
+    Returns
+    -------
+    newdata : datafiles in numpy data array format. If newdata is a 1D datafile, the shape of the data will be (nx,1)
+        
+    abscissa : different abscissa associated with newdata, numpy data array format.
+        DESCRIPTION: If newdata is a 1D datafile, abscissa will be a column vector. 
+                    If newdata is a 2D datafile, abscissa will be a two columns vector, the first column associated to the first dimension abscissa,
+                    the second column associated to the 2nd dimension abscissa.
+                    If newdata is a 3D datafile, abscissa will be a three columns vector, the first column associated to the first dimension abscissa,
+                    the second column associated to the 2nd dimension abscissa,
+                    the third column associated to the 3nd dimension abscissa.
+
+    parameters : dictionnaries of the parameters reported in the .DSC bruker file.
+    '''
     nx = 1024
     ny = 1
     nz = 1
@@ -236,7 +275,15 @@ def eprload_BrukerBES3T(fullbasename=None,Scaling=None,*args,**kwargs):
     
 def xepr_load_acqu(filename_par=None):
     '''
-    Load the Xepr acquisition parameter file, which should be a .dsc extension.
+    Load the Xepr acquisition parameter file, which should be a .dsc/.DSC extension.
+    
+    This script is freely inspired by the pyspecdata python module from the John M. Franck lab (especially for the xepr_load_acqu function below)
+    (https://github.com/jmfrancklab/pyspecdata)
+    (https://pypi.org/project/pySpecData/)
+    (http://jmfrancklab.github.io/pyspecdata/)
+    
+    Script adapted by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+
     Returns
     -------
     A dictionary of the parameter written in the .DSC file.

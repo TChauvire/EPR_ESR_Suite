@@ -4,10 +4,52 @@ from warnings import warn
 import numpy as np
 
 def eprload_BrukerESP(fullbasename=None,Scaling=None,*args,**kwargs):
-    ''' ESP data file processing
+    '''
+    ESP data file processing
+    (Bruker EPR Standard for Spectrum Storage and Transfer)
+    .par: descriptor file
+    .spc: data file
+    
     Bruker ECS machines
     Bruker ESP machines
     Bruker WinEPR, Simfonia
+ 
+    This script is freely inspired by the easyspin suite from the Stefan Stoll lab
+    (https://github.com/StollLab/EasySpin/)
+    (https://easyspin.org/easyspin/)
+    and from the pyspecdata python module from the John M. Franck lab (especially for the load_winepr_param function below)
+    (https://github.com/jmfrancklab/pyspecdata)
+    (https://pypi.org/project/pySpecData/)
+    (http://jmfrancklab.github.io/pyspecdata/)
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+    
+    Parameters
+    ----------
+    fullbasename : complete path to import the file, type is string
+        DESCRIPTION. The default is None.
+    Scaling : Scaling to achieve on the datafiles.
+        DESCRIPTION:
+        Different options are available: 'n', intensity is divided by the number of scans done
+        'G', intensity is divided by the receiver gain                               
+        'c', intensity is divided by the sampling time in second
+        'P', intensity is divided by the microwave power in Watt
+        'T', intensity is divided by the Temperature in Kelvin
+        The default is None.
+
+    Returns
+    -------
+    newdata : datafiles in numpy data array format. If newdata is a 1D datafile, the shape of the data will be (nx,1)
+        
+    abscissa : different abscissa associated with newdata.
+        DESCRIPTION: If newdata is a 1D datafile, abscissa will be a column vector. 
+                    If newdata is a 2D datafile, abscissa will be a two columns vector, the first column associated to the first dimension abscissa,
+                    the second column associated to the 2nd dimension abscissa.
+                    If newdata is a 3D datafile, abscissa will be a three columns vector, the first column associated to the first dimension abscissa,
+                    the second column associated to the 2nd dimension abscissa,
+                    the third column associated to the 3nd dimension abscissa.
+
+    parameters : dictionnaries of the parameters reported in the .DSC bruker file.
     '''
     # Read parameter file (contains key-value pairs)
     filename = fullbasename[:-4]
@@ -223,13 +265,26 @@ def eprload_BrukerESP(fullbasename=None,Scaling=None,*args,**kwargs):
     return newdata,abscissa,parameters
     
 def load_winepr_param(filename_par):
-    "Load the parameters for the winepr filename"
+    '''
+    Load the parameters for the winepr filename, which should be a .par/.PAR extension. 
+    
+    This script is freely inspired by the pyspecdata python module from the John M. Franck lab (especially for the xepr_load_acqu function below)
+    (https://github.com/jmfrancklab/pyspecdata)
+    (https://pypi.org/project/pySpecData/)
+    (http://jmfrancklab.github.io/pyspecdata/)
+    
+    Script adapted by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+
+    Returns
+    -------
+    A dictionary of the parameter written in the .par file.
+    '''
     with open(filename_par,'r') as fp:
         lines = fp.readlines()
     line_re = re.compile(r'([_A-Za-z0-9]+) +(.*)')
     lines = map(str.rstrip,lines)
     lines = [j.rstrip('\n') for j in lines] # because it's just \n, even on windows
-    v = {'HSW':50} #'DRS':4096,'RES':1024,
+    v = {'HSW':50} # needed for some general import features... ('DRS':4096,'RES':1024,)
     for line in lines:
         m = line_re.match(line)
         if m is None:

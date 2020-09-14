@@ -1,10 +1,10 @@
 import numpy as np
 
-def windowing(window_type=None,M=None,alpha=None,*args,**kwargs):
-    '''Returns an apodization window. M is the number
+def windowing(window_type=None,N=None,alpha=None,*args,**kwargs):
+    '''
+    Returns an apodization window. N is the number
     of points. The string window_type specifies the type of the windowing
-    and can be
-
+    and can be :
       'bla'    Blackman
       'bar'    Bartlett
       'con'    Connes
@@ -12,19 +12,62 @@ def windowing(window_type=None,M=None,alpha=None,*args,**kwargs):
       'ham'    Hamming
       'han'    Hann (also called Hanning)
       'wel'    Welch
+    
     The following three windows need the parameter
     alpha. Reasonable ranges for alpha are given.
-
       'exp'    Exponential    2 to 6
       'gau'    Gaussian       0.6 to 1.2
       'kai'    Kaiser         3 to 9
 
-    A '+' ('-') appended to Type indicates that only the
+    A '+' ('-') appended to window_type indicates that only the
     right (left) half of the window should be constructed.
 
-      'ham'    symmetric (-1 <= x <= 1, n points)
-      'ham+'   right side only (0 <= x <= 1, n points)
-      'ham-'   left side only (-1 <= x <= 0, n points)
+      'ham'    symmetric (-1 <= x <= 1, N points)
+      'ham+'   right side only (0 <= x <= 1, N points)
+      'ham-'   left side only (-1 <= x <= 0, N points)
+    
+    This script is freely inspired by the easyspin suite from the Stefan Stoll lab
+    (https://github.com/StollLab/EasySpin/)
+    (https://easyspin.org/easyspin/)
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+
+    Parameters
+    ----------
+    window_type : string specifying the window type to generate.
+    10 optional window are possible:
+        'bla'    Blackman
+        'bar'    Bartlett
+        'con'    Connes
+        'cos'    Cosine
+        'ham'    Hamming
+        'han'    Hann (also called Hanning)
+        'wel'    Welch
+        'exp'    Exponential
+        'gau'    Gaussian
+        'kai'    Kaiser 
+        DESCRIPTION. The default is None.
+    
+    N : number of points for the length of the window
+        TYPE : Integer, optional
+        DESCRIPTION. The default is None.
+    
+    alpha : parameters used for the 3 type of window 'exp', 'gau', and 'kai'.
+    TYPE = float number
+    Reasonable ranges for alpha are given:
+      'exp'    Exponential    2 to 6
+      'gau'    Gaussian       0.6 to 1.2
+      'kai'    Kaiser         3 to 9
+    The default is None.
+
+    Raises
+    ------
+    ValueError
+        DESCRIPTION.
+
+    Returns
+    -------
+    w : apodization window. TYPE: 1D numpy data array 
     '''
     if ((window_type == 3 or window_type == 4) and type(window_type) ==str):
         raise ValueError('The Argument "window_type" must be a 3- or 4-character string!')
@@ -42,10 +85,10 @@ def windowing(window_type=None,M=None,alpha=None,*args,**kwargs):
         xmin=-1
         xmax=1
     
-    if not (type(M) == int and M>0):
-        raise ValueError('M must be a positive integer!')
+    if not (type(N) == int and N>0):
+        raise ValueError('N (Number of Points) must be a positive integer!')
     
-    x=np.linspace(xmin,xmax,M)
+    x=np.linspace(xmin,xmax,N)
 
     if window_type[:3] == 'ham':
         w = 0.54+0.46*np.cos(np.pi*x)

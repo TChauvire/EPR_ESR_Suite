@@ -5,6 +5,13 @@ def hilberttrans(data, N=None):
     """
     Hilbert transform.
     Reconstruct imaginary data via hilbert transform.
+    
+    This script is freely inspired by the easyspin suite from the Stefan Stoll lab
+    (https://github.com/StollLab/EasySpin/)
+    (https://easyspin.org/easyspin/)
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+    
     Parameters
     ----------
     data : numpy data array column vector
@@ -12,6 +19,8 @@ def hilberttrans(data, N=None):
         Number of Fourier components.
     Returns
     -------
+    z : Hilbert transformed complex vector.
+        TYPE : numpy data array column vector
     References
     ----------
     .. [1] Wikipedia, "Analytic signal".

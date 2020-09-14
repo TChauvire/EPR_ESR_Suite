@@ -3,12 +3,20 @@ from scipy.special import jv
  
 def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):
     '''
-    fieldmod  field modulation
+    fieldmod: pseudo-modulated (amplitude in G in EPR/ESR magnetic resonance technique) field modulation
     
-    yMod = fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1)
+    yModInPhase = fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1)
         
-    Computes the effect of field modulation on an EPR absorption spectrum.
-     
+    Computes the effect of field modulation on an EPR/ESR spectrum.
+    Mathematically, it employs the convolution of the fft of the signal 
+    with the Bessel function of the first kind of real order and complex argument. (check scipy.special.jv)
+    
+    This script is freely inspired by the easyspin suite from the Stefan Stoll lab
+    (https://github.com/StollLab/EasySpin/)
+    (https://easyspin.org/easyspin/)
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
+    
     Parameters
     ----------
     x : TYPE numpy array column vector
@@ -17,23 +25,21 @@ def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):
     y : TYPE numpy array column vector, x and y needs to have the same length
         DESCRIPTION : EPR absorption spectrum 
         The default is None.
-    ModAmpl : TYPE = positive float
+    ModAmpl : Amplitude modulation (in mT), TYPE = positive float
         DESCRIPTION : peak-to-peak modulation amplitude [mT]
         The default is None.
     Harmonic : postive integer, optional
         DESCRIPTION : Harmonic of the EPR spectrum (0, 1, 2, ...)
         The default is 1 (so first derivative).
 
-    Raises
-    ------
-    ValueError
-        DESCRIPTION.
-
     Returns
     -------
     yModInPhase : TYPE = numpy array column vector
         DESCRIPTION : pseudo-modulated EPR spectrum.
     
+    ToDo Try to adjust the phase contain in the 
+    (yModInPhase, yModOutOfPhase) tuple of data to have a better signal
+
     References
     -------
     Berger, Gunthart, Z.Angew.Math.Phys. 13, 310 (1962)
@@ -56,9 +62,11 @@ def fieldmodulation(x=None,y=None,ModAmpl=None,Harmonic=1,*args,**kwargs):
     if len(y) != npts:
         raise ValueError('x and y must have the same length!')
     
-    y=np.ravel(y)
-    if len(y) != npts:
+    
+    if y.shape[0] != np.ravel(y).shape[0]:
         raise ValueError('y must be a row or column vector.')
+    else: 
+        y=np.ravel(y)
     
     # Compute relative base-to-peak amplitude.
     dx=x[1] - x[0]

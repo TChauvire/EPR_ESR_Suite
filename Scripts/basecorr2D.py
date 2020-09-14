@@ -27,6 +27,12 @@ def basecorr2D(Spectrum=None,dimension=None,polyorder=None,*args,**kwargs):
         nD polynomial least-square fits are computed by constructing 
         the unsquared Vandermonde matrix associated with the problem and using 
         np.linalg.lstsq() to solve the resulting system of linear equations.
+
+    This script is freely inspired by the easyspin suite from the Stefan Stoll lab
+    (https://github.com/StollLab/EasySpin/)
+    (https://easyspin.org/easyspin/)
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
     
     Parameters
     ----------
@@ -47,11 +53,6 @@ def basecorr2D(Spectrum=None,dimension=None,polyorder=None,*args,**kwargs):
     TYPE, List of integer describing the polynomial order
     DESCRIPTION. The default is None.
     
-    Raises
-    ------
-    ValueError
-        DESCRIPTION.
-
     Returns
     -------
     CorrSpectrum : Background corrected spectrum in numpy data array format 

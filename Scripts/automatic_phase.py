@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun  4 12:04:37 2020
-
-@author: Tim
-"""
-
 import numpy as np
 import scipy.optimize
 from warnings import warn
 
 def automatic_phase(vector=None,pivot1=1,funcmodel='minfunc', *args,**kwargs):
     '''
-    Function that adjustautomatically the phase of a complex vector by minimizing the 
+    Function that adjust automatically the phase of a complex vector by minimizing the 
     imaginary part.
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
     
     Parameters
     ----------
@@ -20,7 +15,13 @@ def automatic_phase(vector=None,pivot1=1,funcmodel='minfunc', *args,**kwargs):
         DESCRIPTION. The default is None.
     pivot : integer, has to be lower than the number of point of the column vector
         DESCRIPTION. The default is 1.
-
+    funcmodel : Model function employed for the minimization procedure. 
+        Two options are available: 
+        'minfunc' : Automated phase Correction based on Minimization of the Imaginary Part
+        'acme' : Automated phase Correction based on Minimization of Entropy 
+        (ref: Chen Li et al. Journal of Magnetic Resonance 158 (2002) 164-168)
+        DESCRIPTION. The default is 'minfunc'.
+        
     Returns as a first output the phase corrected complex column vector
     as a second output a dictionnary of the single angle correction employed 
     for zero-phase correction and the two angles for the first order phase correction
@@ -62,11 +63,11 @@ def automatic_phase(vector=None,pivot1=1,funcmodel='minfunc', *args,**kwargs):
     vector_imag = np.imag(vector)
     # Calculate zero and first order phase correction
     if funcmodel == 'minfunc':
-        minimum = scipy.optimize.fmin(minfunc, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
+        minimum = scipy.optimize.fmin(minfunc, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1),maxiter=1000,maxfun=1000)
     elif funcmodel == 'acme':
-        minimum = scipy.optimize.fmin(acme, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
+        minimum = scipy.optimize.fmin(acme, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1),maxiter=1000,maxfun=1000)
     else:
-        warn("There is only two options possible with the funcmodel argument: 'minfunc' and 'acme'." 
+        warn("There is only two options for the funcmodel: 'minfunc' and 'acme'." 
              "By default, 'minfunc' was used.")
         minimum = scipy.optimize.fmin(minfunc, [zero_phase, 0.0], args=(phase_corrected_vector,pivot1))
     phi0, phi1 = minimum
@@ -79,7 +80,9 @@ def automatic_phase(vector=None,pivot1=1,funcmodel='minfunc', *args,**kwargs):
 
 def minfunc(phase,complex_vector,pivot1):
     '''
-    Return the value minimized of the imaginary part after phase correction
+    Phase correction fucntion using minimization method of the imaginary part as algorithm.
+    
+    Script written by Timothée Chauviré (https://github.com/TChauvire/EPR_ESR_Suite/), 09/09/2020
 
     Parameters
     ----------
@@ -137,6 +140,7 @@ def acme(phase, complex_vector, pivot1):
 
     # Calculation of entropy
     p1[p1 == 0] = 1
+
     h1 = -p1 * np.log(p1)
     h1s = np.sum(h1)
 
@@ -144,9 +148,10 @@ def acme(phase, complex_vector, pivot1):
     pfun = 0.0
     as_ = data - np.abs(data)
     sumas = np.sum(as_)
+
     if sumas < 0:
         pfun = pfun + np.sum((as_/2) ** 2)
+
     p = 1000 * pfun
 
-    x = (h1s + p) / data.shape[-1] / np.max(data)
-    return x
+    return (h1s + p) / data.shape[-1] / np.max(data)
