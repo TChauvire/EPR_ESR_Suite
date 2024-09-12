@@ -90,3 +90,38 @@ def OpenMultipleComplexFiles(ListOfFiles,Scaling=None,polyorder=0, window=20,*ar
             fulldata[0:npts,ncol*i+5] = fulldata[0:npts,ncol*i+4]/np.amax(fulldata[0:npts,ncol*i+4])
             Header = par['TITL']
     return fulldata
+
+def OpenMultipleComplexFiles2(ListOfFiles,Scaling=None,polyorder=0, window=20,*args,**kwargs):
+    maxlen = MaxLengthOfFiles(ListOfFiles,*args,**kwargs)
+    ncol = 7
+    fulldata = np.full((maxlen,ncol*len(ListOfFiles)),np.nan,dtype="complex_")
+    Header = list(np.zeros((ncol*len(ListOfFiles),)))
+    for file in ListOfFiles:
+        i = ListOfFiles.index(file)
+        data, abscissa, par = eprload(FileName = file,Scaling=None)
+        if (data.shape[0] != np.ravel(data).shape[0]):
+            raise ValueError('The file {0} is\'t a column vector'.format(par['TITL']))
+        else: 
+            data = np.ravel(data)
+            ### First Phase the data
+            new_data, _ = automatic_phase(vector=data,pivot1=int(data.shape[0]/2),funcmodel='minfunc')
+            data_real = new_data.real
+            data_imag = new_data.imag
+            data_real_new,_,_,_ = basecorr1D(x=abscissa,y=data_real, polyorder=polyorder,window=window)
+            data_imag_new,_,_,_ = basecorr1D(x=abscissa,y=data_imag, polyorder=polyorder,window=window)
+            npts = abscissa.shape[0]
+            fulldata[0:npts,ncol*i] = abscissa[0:npts,0]
+            fulldata[0:npts,ncol*i+1] = data_real[0:npts]
+            fulldata[0:npts,ncol*i+2] = data_imag[0:npts]
+            fulldata[0:npts,ncol*i+3] = np.absolute(data_real+1j*data_imag)
+            fulldata[0:npts,ncol*i+4] = datasmooth(data_real[0:npts], window_length=4, method='flat')
+            fulldata[0:npts,ncol*i+5] = datasmooth(data_imag[0:npts], window_length=4, method='flat')
+            fulldata[0:npts,ncol*i+6] = datasmooth(np.absolute(data_real+1j*data_imag), window_length=4, method='flat')
+            Header[ncol*i] = par['XNAM']
+            Header[ncol*i+1] = par['TITL']+str("_real")
+            Header[ncol*i+2] = par['TITL']+str("_imag")
+            Header[ncol*i+3] = par['TITL']+str("_abs")
+            Header[ncol*i+4] = par['TITL']+str("_real_4ptsSmoothed")
+            Header[ncol*i+5] = par['TITL']+str("_imag_4ptsSmoothed")
+            Header[ncol*i+6] = par['TITL']+str("_abs_4ptsSmoothed")
+    return np.real(fulldata), Header
